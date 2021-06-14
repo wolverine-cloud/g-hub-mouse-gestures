@@ -10,8 +10,9 @@ This script wil let you use a button on your mouse to act like the "Gesture butt
 It will also let you use another button on your mouse for navigating between browser pages using gestures.
 
 The default settings below will be for the multytasking gestures from macOS
- - Up 		Mission Control 	(Control+Up-Arrow)
- - Down 	Application Windows (Control+Down-Arrow)
+ - Up		Expose			(F11)
+ - Click	Mission Control 	(Control+Up-Arrow)
+ - Down 	Application Windows 	(Control+Down-Arrow)
  - Left 	move right a space 	(Control+Right-Arrow)
  - Right 	move left a space 	(Control+Left-Arrow)
 
@@ -19,19 +20,19 @@ The default settings below will be for the navigation gestures for in browsers
  - Up 		{ no action }
  - Down 	{ no action }
  - Left 	next page 		(Command+Right-Bracket)
- - Right 	previous page 	(Command+Left-Bracket)
+ - Right 	previous page 		(Command+Left-Bracket)
 ]]--
 
  
 -- The button your gestures are mapped to G1 = 1, G2 = 2 etc..
-gestureButtonNumber = 4;
+gestureButtonNumber = 5;
 
 -- The button navigation actions are mapped to G1 = 1, G2 = 2 etc..
-navigationButtonNumber = 5;
+navigationButtonNumber = 10;
 
 -- The minimal horizontal/vertical distance your mouse needs to be moved for the gesture to recognize in pixels
-minimalHorizontalMovement = 200;
-minimalVerticalMovement = 200;
+minimalHorizontalMovement = 50;
+minimalVerticalMovement = 50;
 
 -- Default values for 
 horizontalStartingPosistion = 0;
@@ -44,6 +45,7 @@ delay = 20
 
 -- Here you can enable/disable features of the script
 missionControlEnabled = true
+exposeEnabled = true
 applicationWindowsEnabled = true
 moveBetweenSpacesEnabled = true
 browserNavigationEnabled = true
@@ -81,16 +83,26 @@ function OnEvent(event, arg, family)
 		verticalDifference = verticalStartingPosistion - verticalEndingPosistion
 
 		-- Determine the direction of the mouse and if the mouse moved far enough
-		if horizontalDifference > minimalHorizontalMovement then mouseMovedLeft(arg) end
-		if horizontalDifference < -minimalHorizontalMovement then mouseMovedRight(arg) end
+		if horizontalDifference < -minimalHorizontalMovement then mouseMovedLeft(arg) end
+		if horizontalDifference > minimalHorizontalMovement then mouseMovedRight(arg) end
 		if verticalDifference > minimalVerticalMovement then mouseMovedDown(arg) end
 		if verticalDifference < -minimalVerticalMovement then mouseMovedUp(arg) end
+		if verticalDifference > -minimalVerticalMovement and verticalDifference < minimalVerticalMovement then mouseClicked(arg) end
+
 	end
 end
 
--- Mouese Moved
+-- Mouse Moved
 function mouseMovedUp(buttonNumber)
 	if debuggingEnabeld then OutputLogMessage("mouseMovedUp\n") end
+	
+	if buttonNumber == gestureButtonNumber and exposeEnabled then 
+		performExposeGesture()
+	end
+end
+
+function mouseClicked(buttonNumber)
+	if debuggingEnabeld then OutputLogMessage("mouseClicked\n") end
 	
 	if buttonNumber == gestureButtonNumber and missionControlEnabled then 
 		performMissionControlGesture()
@@ -128,6 +140,14 @@ function mouseMovedRight(buttonNumber)
 end
 
 -- Gesture Functions
+	-- Expose
+function performExposeGesture()
+	if debuggingEnabeld then OutputLogMessage("performExpose\n") end
+	firstKey = "F11"
+	pressTwoKeys(firstKey, secondKey)
+end
+
+	-- Mission Control
 function performMissionControlGesture()
 	if debuggingEnabeld then OutputLogMessage("performMissionControlGesture\n") end
 	firstKey = "lctrl"
@@ -180,4 +200,3 @@ function pressTwoKeys(firstKey, secondKey)
 	ReleaseKey(firstKey)
 	ReleaseKey(secondKey)
 end
-
